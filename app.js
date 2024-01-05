@@ -4,34 +4,41 @@ const path = require('path');
 const fs = require('fs').promises;
 
 const githubToken = process.env.GITHUB_TOKEN;
+if(!githubToken) {
+    throw new Error('GITHUB_TOKEN is not set')
+}
 const dbPath = path.join(__dirname, 'github_repos.db');
 
 const repositories = [
-    { url: "https://github.com/javve/list.js", dependencies: "Vanilla JS" },
-    { url: "https://github.com/fiduswriter/Simple-DataTables", dependencies: "Vanilla JS" },
-    { url: "https://github.com/grid-js/gridjs", dependencies: "Vanilla JS" },
-    { url: "https://github.com/ag-grid/ag-grid", dependencies: "Vanilla JS, Angular, React, Vue" },
-    { url: "https://github.com/olifolkerd/tabulator", dependencies: "Vanilla JS, Optional jQuery" },
-    { url: "https://github.com/wenzhixin/bootstrap-table", dependencies: "jQuery, Bootstrap" },
-    { url: "https://github.com/DataTables/DataTables", dependencies: "jQuery" },
-    { url: "https://github.com/DataTables/DataTablesSrc", dependencies: "jQuery 1.3+" },
-    { url: "https://github.com/mui/material-ui", dependencies: "React, Material-UI" },
-    { url: "https://github.com/nick-keller/react-datasheet-grid", dependencies: "React" },
-    { url: "https://github.com/glideapps/glide-data-grid", dependencies: "React" },
-    { url: "https://github.com/TanStack/table", dependencies: "Vanilla JS, Angular, React, Vue" },
-    { url: "https://github.com/mui/mui-x", dependencies: "React, Material-UI" },
-    { url: "https://github.com/primer/view_components", dependencies: "Rails, ViewComponent" },
-    { url: "https://github.com/ViewComponent/view_component", dependencies: "Rails" },
-    { url: "https://github.com/matfish2/vue-tables-2", dependencies: "Vue.js" },
-    { url: "https://github.com/angular/components", dependencies: "Angular, Angular Material" },
-    { url: "https://github.com/valor-software/ngx-bootstrap", dependencies: "Angular, Bootstrap" },
-    { url: "https://github.com/swimlane/ngx-datatable", dependencies: "Angular" },
-    { url: "https://github.com/ag-grid/ag-grid", dependencies: "Angular, React, Vue" },
-    { url: "https://github.com/xaksis/vue-good-table", dependencies: "Vue" },
-    { url: "https://github.com/TonyGermaneri/canvas-datagrid", dependencies: "" },
-    { url: "https://github.com/material-table-core/core", dependencies: "" },
-    //{ url: "", dependencies: "" },
-    //{ url: "", dependencies: "" },
+    { url: "https://wails.io", github: "https://github.com/wailsapp/wails", dependencies: "Go, Web Technologies" },
+    { url: "https://fyne.io", github: "https://github.com/fyne-io/fyne", dependencies: "Go" },
+    { url: "https://github.com/zserge/lorca", github: "https://github.com/zserge/lorca", dependencies: "Go, Chrome" },
+    { url: "https://github.com/asticode/go-astilectron", github: "https://github.com/asticode/go-astilectron", dependencies: "Go, Electron" },
+    { url: "https://gioui.org", github: "https://github.com/gioui/gio", dependencies: "Go" },
+    { url: "https://github.com/webview/webview", github: "https://github.com/webview/webview", dependencies: "Go, C/C++" },
+    { url: "https://www.electronjs.org", github: "https://github.com/electron/electron", dependencies: "JavaScript, Node.js" },
+    { url: "https://nwjs.io", github: "https://github.com/nwjs/nw.js", dependencies: "JavaScript, Node.js" },
+    { url: "https://cordova.apache.org", github: "https://github.com/apache/cordova", dependencies: "JavaScript" },
+    { url: "https://necolas.github.io/react-native-web/", github: "https://github.com/necolas/react-native-web", dependencies: "React Native, JavaScript" },
+    { url: "https://ionicframework.com", github: "https://github.com/ionic-team/ionic-framework", dependencies: "Angular, React, Vue, JavaScript" },
+    { url: "https://capacitorjs.com", github: "https://github.com/ionic-team/capacitor", dependencies: "JavaScript" },
+    { url: "https://sciter.com", github: "https://github.com/c-smile/sciter-sdk", dependencies: "HTML, CSS, JavaScript" },
+    { url: "https://neutralino.js.org", github: "https://github.com/neutralinojs/neutralinojs", dependencies: "JavaScript" },
+    { url: "https://www.qt.io", github: "https://github.com/qt/qt5", dependencies: "C++" },
+    { url: "https://dotnet.microsoft.com/apps/xamarin", github: "https://github.com/xamarin/xamarin-forms-samples", dependencies: "C#, .NET" },
+    { url: "https://unity.com", github: "https://github.com/Unity-Technologies/UnityCsReference", dependencies: "C#" },
+    { url: "https://kivy.org", github: "https://github.com/kivy/kivy", dependencies: "Python" },
+    { url: "https://www.codenameone.com", github: "https://github.com/codenameone/CodenameOne", dependencies: "Java" },
+    { url: "https://flex.apache.org", github: "https://github.com/apache/flex-sdk", dependencies: "ActionScript" },
+    //{ url: "https://www.sencha.com/products/extjs/", github: "https://github.com/sencha", dependencies: "JavaScript" },
+    { url: "https://cordova.apache.org", github: "https://github.com/apache/cordova", dependencies: "HTML, CSS, JavaScript" },
+    { url: "https://flutter.dev", github: "https://github.com/flutter/flutter", dependencies: "Dart" },
+    { url: "https://reactnative.dev", github: "https://github.com/facebook/react-native", dependencies: "JavaScript, React" },
+    { url: "https://tauri.studio", github: "https://github.com/tauri-apps/tauri", dependencies: "Rust, Web Technologies" },
+    { url: "https://www.webui.me/", github: "https://github.com/webui-dev/webui", dependencies: "Go, Web Technologies" },
+    { url: "https://deskgap.com/", github: "https://github.com/patr0nus/DeskGap", dependencies: "JavaScript" },
+    { url: "https://proton-native.js.org", github: "https://github.com/kusti8/proton-native", dependencies: "JavaScript, React" },
+    // { url: "", github: "", dependencies: "" },
 ];
 
 function calculateAgeInYears(creationDate) {
@@ -183,7 +190,7 @@ ON CONFLICT(url) DO UPDATE SET
 
 (async () => {
     for (let repo of repositories) {
-        const repoData = await fetchRepoData(repo.url);
+        const repoData = await fetchRepoData(repo.github);
         repoData.url = repo.url;
         repoData.dependencies = repo.dependencies;
         insertRepoData(repoData);
